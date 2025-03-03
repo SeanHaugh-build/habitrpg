@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Tracker</title>
+    <style>
+        :root {
+            --primary-color: #007AFF;
+            --background-color: #F2F2F7;
+            --card-background: #FFFFFF;
+            --border-radius: 12px;
+            --spacing: 16px;
+            --reward-color: #FFD700;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: #1C1C1E;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: var(--spacing);
+            margin-bottom: var(--spacing);
+        }
+
+        .profile-section {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: var(--spacing);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .avatar-container {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            position: relative;
+            background-color: #F5F5F7;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .avatar-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .streak-display {
+            text-align: center;
+            margin: 15px 0;
+            padding: 10px;
+            background-color: var(--background-color);
+            border-radius: var(--border-radius);
+        }
+
+        .streak-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #FF9500;
+        }
+
+        .stats-container {
+            background-color: var(--background-color);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: #6C6C70;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .equipment-section {
+            margin-top: 20px;
+        }
+
+        .equipment-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .equipment-slot {
+            background-color: var(--background-color);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .equipment-slot.empty {
+            border: 2px dashed #C7C7CC;
+        }
+
+        .equipment-image {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .equipment-name {
+            font-size: 12px;
+            color: #6C6C70;
+        }
+
+        .equipment-stats {
+            font-size: 11px;
+            color: #34C759;
+            margin-top: 2px;
+        }
+
+        .inventory-section {
+            margin-top: 20px;
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .inventory-item {
+            background-color: var(--background-color);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .inventory-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .inventory-item.equipped {
+            border: 2px solid var(--primary-color);
+        }
+
+        .inventory-item-image {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 5px;
+        }
+
+        .reward-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--reward-color);
+            color: #1C1C1E;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+        }
+
+        .reward-notification.show {
+            transform: translateX(0);
+        }
+
+        h1 {
+            font-size: 34px;
+            font-weight: 700;
+            margin: 24px 0;
+            text-align: center;
+        }
+
+        .container {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: var(--spacing);
+            margin-bottom: 20px;
+        }
+
+        .date-navigation {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing);
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        #currentWeek {
+            font-size: 17px;
+            font-weight: 600;
+            color: #1C1C1E;
+        }
+
+        .add-habit {
+            display: flex;
+            flex-direction: column;
+            gap: calc(var(--spacing) / 2);
+            margin-bottom: 20px;
+            padding: var(--spacing);
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .add-habit-row {
+            display: flex;
+            gap: var(--spacing);
+        }
+
+        .habit-category {
+            padding: 12px 16px;
+            border: 1px solid #E5E5EA;
+            border-radius: 8px;
+            font-size: 17px;
+            background-color: white;
+            color: #1C1C1E;
+            cursor: pointer;
+        }
+
+        .habit-category:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .stat-progress {
+            height: 4px;
+            background-color: #E5E5EA;
+            border-radius: 2px;
+            position: relative;
+            margin-top: 4px;
+        }
+
+        .stat-progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .stat-level {
+            font-size: 12px;
+            color: #8E8E93;
+            margin-left: 4px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #E5E5EA;
+            border-radius: 8px;
+            font-size: 17px;
+            transition: border-color 0.2s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s ease, opacity 0.1s ease;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .habit-container {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .habit-row {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #E5E5EA;
+            transition: background-color 0.2s ease;
+        }
+
+        .habit-row:hover {
+            background-color: #F9F9F9;
+        }
+
+        .habit-row.physical {
+            border-left: 4px solid #FF3B30;
+        }
+
+        .habit-row.mental {
+            border-left: 4px solid #5856D6;
+        }
+
+        .habit-row.endurance {
+            border-left: 4px solid #34C759;
+        }
+
+        .habit-row.creative {
+            border-left: 4px solid #FF9500;
+        }
+
+        .habit-name {
+            flex: 1;
+            font-size: 17px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing);
+            position: relative;
+        }
+
+        .delete-btn {
+            opacity: 0;
+            background: none;
+            color: #FF3B30;
+            border: none;
+            padding: 8px;
+            font-size: 20px;
+            font-weight: 300;
+            cursor: pointer;
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: opacity 0.2s ease;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .delete-btn:hover {
+            background-color: rgba(255, 59, 48, 0.1);
+        }
+
+        .habit-row:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .checkbox-container {
+            width: 80px;
+            text-align: center;
+        }
+
+        .date-header {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6C6C70;
+            text-align: center;
+            padding: 8px;
+        }
+
+        .date-value {
+            font-size: 12px;
+            color: #8E8E93;
+            margin-top: 4px;
+        }
+
+        input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #E5E5EA;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        input[type="checkbox"]:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        input[type="checkbox"]:checked::after {
+            content: "✓";
+            position: absolute;
+            color: white;
+            font-size: 16px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        input[type="checkbox"]:hover {
+            border-color: var(--primary-color);
+        }
+
+        input[type="checkbox"]:disabled {
+            background-color: #E5E5EA;
+            border-color: #C7C7CC;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        input[type="checkbox"]:disabled:hover {
+            border-color: #C7C7CC;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .habit-row {
+                padding: 12px;
+            }
+
+            .checkbox-container {
+                width: 60px;
+            }
+
+            .date-header {
+                font-size: 12px;
+            }
+
+            .date-value {
+                font-size: 10px;
+            }
+        }
+
+        .battle-section {
+            margin-top: 20px;
+            background-color: var(--background-color);
+            border-radius: var(--border-radius);
+            padding: 15px;
+        }
+
+        .battle-container {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 15px;
+        }
+
+        .battle-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .player-info, .monster-info {
+            text-align: center;
+        }
+
+        .player-name, .monster-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .hp-bar {
+            background-color: #E5E5EA;
+            border-radius: 10px;
+            height: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hp-bar-fill {
+            background-color: #34C759;
+            height: 100%;
+            width: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .hp-text {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .battle-arena {
+            height: 200px;
+            background-color: var(--background-color);
+            border-radius: var(--border-radius);
+            margin: 15px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .monster-sprite {
+            font-size: 64px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .battle-log {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px;
+            font-size: 14px;
+            max-height: 80px;
+            overflow-y: auto;
+        }
+
+        .battle-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .battle-controls button {
+            flex: 1;
+        }
+
+        .badge-collection {
+            margin-top: 15px;
+        }
+
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .badge {
+            background-color: var(--background-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            position: relative;
+        }
+
+        .badge.locked {
+            opacity: 0.3;
+            filter: grayscale(1);
+        }
+
+        .badge:hover::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Habit Tracker</h1>
+
+    <div class="dashboard">
+        <div class="profile-section">
+            <div class="avatar-container">
+                <img id="avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect width='200' height='200' fill='%23F5F5F7'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='80' fill='%23C7C7CC' text-anchor='middle' dy='.3em'%3E⚔️%3C/text%3E%3C/svg%3E" alt="Avatar" class="avatar-image">
+            </div>
+
+            <div class="stats-container">
+                <h3>Character Stats</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">HP</span>
+                        <span id="hpStat" class="stat-value">100</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">MP</span>
+                        <span id="mpStat" class="stat-value">50</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Strength</span>
+                        <span id="strStat" class="stat-value">10</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Dexterity</span>
+                        <span id="dexStat" class="stat-value">10</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Vitality</span>
+                        <span id="vitStat" class="stat-value">10</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Magic</span>
+                        <span id="magStat" class="stat-value">10</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Spirit</span>
+                        <span id="sprStat" class="stat-value">10</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Luck</span>
+                        <span id="lckStat" class="stat-value">10</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="equipment-section">
+                <h3>Equipment</h3>
+                <div class="equipment-grid">
+                    <div id="weaponSlot" class="equipment-slot empty">
+                        <div class="equipment-image">🗡️</div>
+                        <div class="equipment-name">No weapon</div>
+                    </div>
+                    <div id="armorSlot" class="equipment-slot empty">
+                        <div class="equipment-image">🛡️</div>
+                        <div class="equipment-name">No armor</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="inventory-section">
+                <h3>Inventory</h3>
+                <div id="inventory" class="inventory-grid">
+                    <!-- Inventory items will be added here dynamically -->
+                </div>
+            </div>
+
+            <div class="battle-section">
+                <h3>Battle Arena</h3>
+                <div class="battle-container">
+                    <div class="battle-stats">
+                        <div class="player-info">
+                            <div class="player-name">You</div>
+                            <div class="hp-bar">
+                                <div class="hp-bar-fill" id="playerHpBar"></div>
+                                <span class="hp-text" id="playerHpText">100/100</span>
+                            </div>
+                        </div>
+                        <div class="monster-info">
+                            <div class="monster-name">???</div>
+                            <div class="hp-bar">
+                                <div class="hp-bar-fill" id="monsterHpBar"></div>
+                                <span class="hp-text" id="monsterHpText">???/???</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="battle-arena">
+                        <div class="monster-sprite">👾</div>
+                        <div class="battle-log"></div>
+                    </div>
+                    <div class="battle-controls">
+                        <button id="attackBtn" onclick="performAttack()">Attack</button>
+                        <button id="healBtn" onclick="performHeal()">Heal (MP: 10)</button>
+                    </div>
+                    <div class="badge-collection">
+                        <h4>Monster Badges</h4>
+                        <div id="badges" class="badges-grid">
+                            <!-- Badges will be added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="habits-section">
+            <div class="date-navigation">
+                <button onclick="previousWeek()">← Previous</button>
+                <span id="currentWeek"></span>
+                <button onclick="nextWeek()">Next →</button>
+            </div>
+
+            <div class="add-habit">
+                <div class="add-habit-row">
+                    <input type="text" id="newHabit" placeholder="Add a new habit...">
+                    <select id="habitCategory" class="habit-category">
+                        <option value="">Select Category</option>
+                        <option value="physical">Physical</option>
+                        <option value="mental">Mental</option>
+                        <option value="endurance">Endurance</option>
+                        <option value="creative">Creative</option>
+                    </select>
+                    <button onclick="addHabit()">Add</button>
+                </div>
+            </div>
+
+            <div id="habits" class="habit-container">
+                <!-- Habits will be added here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <div id="rewardNotification" class="reward-notification">
+        🎉 New reward unlocked!
+    </div>
+
+    <script>
+        let habits = JSON.parse(localStorage.getItem('habits')) || [];
+        let habitStatus = JSON.parse(localStorage.getItem('habitStatus')) || {};
+        let currentDate = new Date();
+
+        // New variables for points and rewards system
+        let points = JSON.parse(localStorage.getItem('points')) || 0;
+        let inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+        let equipped = JSON.parse(localStorage.getItem('equipped')) || {};
+
+        // Character stats and equipment
+        let stats = JSON.parse(localStorage.getItem('stats')) || {
+            hp: 100,
+            mp: 50,
+            str: 10,
+            dex: 10,
+            vit: 10,
+            mag: 10,
+            spr: 10,
+            lck: 10
+        };
+
+        // Available rewards with requirements and stats
+        const rewards = [
+            { 
+                id: 'wooden_sword', 
+                name: 'Wooden Sword', 
+                image: '🗡️', 
+                type: 'weapon',
+                stats: { str: 3, dex: 1 }
+            },
+            { 
+                id: 'bronze_sword', 
+                name: 'Bronze Sword', 
+                image: '⚔️', 
+                type: 'weapon',
+                stats: { str: 8, dex: 3 }
+            },
+            { 
+                id: 'iron_sword', 
+                name: 'Iron Sword', 
+                image: '🗡️', 
+                type: 'weapon',
+                stats: { str: 15, dex: 8 }
+            },
+            { 
+                id: 'leather_armor', 
+                name: 'Leather Armor', 
+                image: '🛡️', 
+                type: 'armor',
+                stats: { hp: 20, vit: 3, dex: 2 }
+            },
+            { 
+                id: 'bronze_armor', 
+                name: 'Bronze Armor', 
+                image: '🛡️', 
+                type: 'armor',
+                stats: { hp: 50, vit: 8, str: 3 }
+            },
+            { 
+                id: 'iron_armor', 
+                name: 'Iron Armor', 
+                image: '🛡️', 
+                type: 'armor',
+                stats: { hp: 100, vit: 15, str: 5 }
+            }
+        ];
+
+        // Get formatted date string
+        const formatDate = (date) => {
+            return date.toISOString().split('T')[0];
+        };
+
+        const formatDisplayDate = (dateStr) => {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        };
+
+        // Get dates for the current week
+        function getWeekDates(date) {
+            const sunday = new Date(date);
+            sunday.setDate(date.getDate() - date.getDay());
+            
+            const weekDates = [];
+            for (let i = 0; i < 7; i++) {
+                const day = new Date(sunday);
+                day.setDate(sunday.getDate() + i);
+                weekDates.push(formatDate(day));
+            }
+            return weekDates;
+        }
+
+        // Navigation functions
+        function previousWeek() {
+            currentDate.setDate(currentDate.getDate() - 7);
+            renderHabits();
+        }
+
+        function nextWeek() {
+            currentDate.setDate(currentDate.getDate() + 7);
+            renderHabits();
+        }
+
+        // Render habits
+        function renderHabits() {
+            const habitsContainer = document.getElementById('habits');
+            habitsContainer.innerHTML = '';
+            
+            const weekDates = getWeekDates(currentDate);
+            const weekRange = `${formatDisplayDate(weekDates[0])} - ${formatDisplayDate(weekDates[6])}`;
+            document.getElementById('currentWeek').textContent = weekRange;
+
+            // Create header row with dates
+            const headerRow = document.createElement('div');
+            headerRow.className = 'habit-row';
+            headerRow.innerHTML = '<div class="habit-name">Habit</div>';
+            
+            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            weekDates.forEach((date, index) => {
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'checkbox-container';
+                dateHeader.innerHTML = `
+                    <div class="date-header">
+                        ${daysOfWeek[index]}
+                        <div class="date-value">${formatDisplayDate(date)}</div>
+                    </div>
+                `;
+                headerRow.appendChild(dateHeader);
+            });
+            habitsContainer.appendChild(headerRow);
+
+            // Create habit rows
+            habits.forEach((habit, index) => {
+                const habitRow = document.createElement('div');
+                habitRow.className = `habit-row${habit.category ? ' ' + habit.category : ''}`;
+
+                const habitName = document.createElement('div');
+                habitName.className = 'habit-name';
+                habitName.textContent = habit.name || habit;
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '×';
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.onclick = () => deleteHabit(index);
+                habitName.appendChild(deleteBtn);
+
+                habitRow.appendChild(habitName);
+
+                // Add checkboxes for each day of the week
+                weekDates.forEach(date => {
+                    const checkboxContainer = document.createElement('div');
+                    checkboxContainer.className = 'checkbox-container';
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = habitStatus[date]?.[habit.name] || false;
+                    
+                    // Check if date is in the future
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const checkDate = new Date(date);
+                    if (checkDate > today) {
+                        checkbox.disabled = true;
+                        checkbox.title = "Cannot check off future habits";
+                    } else {
+                        checkbox.addEventListener('change', () => {
+                            updateHabitStatus(habit, date, checkbox.checked);
+                        });
+                    }
+
+                    checkboxContainer.appendChild(checkbox);
+                    habitRow.appendChild(checkboxContainer);
+                });
+
+                habitsContainer.appendChild(habitRow);
+            });
+        }
+
+        // Add new habit
+        function addHabit() {
+            const input = document.getElementById('newHabit');
+            const category = document.getElementById('habitCategory');
+            const habitName = input.value.trim();
+            const habitCategory = category.value;
+
+            if (habitName && habitCategory && !habits.some(h => h.name === habitName)) {
+                habits.push({
+                    name: habitName,
+                    category: habitCategory
+                });
+                localStorage.setItem('habits', JSON.stringify(habits));
+                input.value = '';
+                category.value = '';
+                renderHabits();
+            } else if (!habitCategory) {
+                alert('Please select a category for your habit');
+            }
+        }
+
+        // Delete habit
+        function deleteHabit(index) {
+            habits.splice(index, 1);
+            localStorage.setItem('habits', JSON.stringify(habits));
+            renderHabits();
+        }
+
+        // Update points display
+        function updatePointsDisplay() {
+            document.getElementById('pointsValue').textContent = points;
+            localStorage.setItem('points', JSON.stringify(points));
+        }
+
+        // Show reward notification
+        function showRewardNotification() {
+            const notification = document.getElementById('rewardNotification');
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Add points for completing a habit
+        function addPoints(amount) {
+            points += amount;
+            updatePointsDisplay();
+            
+            // Check if any rewards are unlocked
+            rewards.forEach(reward => {
+                if (points >= reward.cost && !inventory.some(item => item.id === reward.id)) {
+                    inventory.push(reward);
+                    localStorage.setItem('inventory', JSON.stringify(inventory));
+                    showRewardNotification();
+                    renderInventory();
+                }
+            });
+        }
+
+        // Render inventory
+        function renderInventory() {
+            const inventoryContainer = document.getElementById('inventory');
+            inventoryContainer.innerHTML = '';
+
+            inventory.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = `inventory-item${equipped[item.type] === item.id ? ' equipped' : ''}`;
+                itemElement.innerHTML = `
+                    <div class="inventory-item-image">${item.image}</div>
+                    <div>${item.name}</div>
+                `;
+                itemElement.onclick = () => equipItem(item);
+                inventoryContainer.appendChild(itemElement);
+            });
+        }
+
+        // Equip/unequip item
+        function equipItem(item) {
+            if (equipped[item.type] === item.id) {
+                delete equipped[item.type];
+            } else {
+                equipped[item.type] = item.id;
+            }
+            localStorage.setItem('equipped', JSON.stringify(equipped));
+            updateEquipmentDisplay();
+            renderInventory();
+            updateStatsDisplay();
+        }
+
+        // Update avatar with equipped items
+        function updateAvatar() {
+            const avatar = document.getElementById('avatar');
+            let avatarHtml = '👤'; // Base avatar
+            
+            // Add equipped items
+            Object.values(equipped).forEach(itemId => {
+                const item = inventory.find(i => i.id === itemId);
+                if (item) {
+                    avatarHtml += item.image;
+                }
+            });
+            
+            // Update avatar SVG
+            avatar.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect width='200' height='200' fill='%23F5F5F7'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='40' fill='%23000000' text-anchor='middle' dy='.3em'%3E${avatarHtml}%3C/text%3E%3C/svg%3E`;
+        }
+
+        // Update habit status
+        function updateHabitStatus(habit, date, isChecked) {
+            if (!habitStatus[date]) {
+                habitStatus[date] = {};
+            }
+            
+            // Only update stats if habit is being checked
+            if (isChecked && !habitStatus[date][habit.name]) {
+                // Find habit category and apply stat gains
+                const habitData = habits.find(h => h.name === habit.name);
+                if (habitData && habitData.category) {
+                    const category = habitCategories[habitData.category];
+                    if (category) {
+                        Object.entries(category.expGain).forEach(([stat, gain]) => {
+                            addStatExp(stat, gain);
+                        });
+                    }
+                }
+            }
+            
+            habitStatus[date][habit.name] = isChecked;
+            localStorage.setItem('habitStatus', JSON.stringify(habitStatus));
+        }
+
+        // Update stats display
+        function updateStatsDisplay() {
+            const totalStats = calculateTotalStats();
+            const stats = ['hp', 'mp', 'str', 'dex', 'vit', 'mag', 'spr', 'lck'];
+            
+            stats.forEach(stat => {
+                const statElement = document.getElementById(`${stat}Stat`);
+                const statValue = Math.floor(totalStats[stat]);
+                const statLevel = calculateStatLevel(stat);
+                const progress = calculateStatProgress(stat);
+                
+                statElement.innerHTML = `
+                    ${statValue}
+                    <span class="stat-level">Lv.${statLevel}</span>
+                    <div class="stat-progress">
+                        <div class="stat-progress-bar" style="width: ${progress}%"></div>
+                    </div>
+                `;
+            });
+        }
+
+        // Calculate base stats plus equipment bonuses
+        function calculateTotalStats() {
+            // First calculate base HP from vitality
+            const baseHp = 100 + (stats.vit * 10);
+            const baseMp = 50 + (stats.mag * 5);
+            
+            let totalStats = {
+                hp: baseHp,
+                mp: baseMp,
+                str: stats.str || 10,
+                dex: stats.dex || 10,
+                vit: stats.vit || 10,
+                mag: stats.mag || 10,
+                spr: stats.spr || 10,
+                lck: stats.lck || 10
+            };
+            
+            // Add equipment bonuses
+            Object.values(equipped).forEach(itemId => {
+                const item = inventory.find(i => i.id === itemId);
+                if (item && item.stats) {
+                    Object.entries(item.stats).forEach(([stat, value]) => {
+                        if (totalStats.hasOwnProperty(stat)) {
+                            if (stat === 'hp') {
+                                totalStats.hp += value;
+                            } else if (stat === 'mp') {
+                                totalStats.mp += value;
+                            } else {
+                                totalStats[stat] += value;
+                            }
+                        }
+                    });
+                }
+            });
+            
+            return totalStats;
+        }
+
+        // Calculate stat level based on experience
+        function calculateStatLevel(stat) {
+            return Math.floor(Math.sqrt(statExp[stat] / 100)) + 1;
+        }
+
+        // Calculate progress to next level (0-100)
+        function calculateStatProgress(stat) {
+            const currentLevel = calculateStatLevel(stat);
+            const expForCurrentLevel = (currentLevel - 1) * (currentLevel - 1) * 100;
+            const expForNextLevel = currentLevel * currentLevel * 100;
+            const progress = ((statExp[stat] - expForCurrentLevel) / (expForNextLevel - expForCurrentLevel)) * 100;
+            return Math.min(Math.max(progress, 0), 100);
+        }
+
+        // Add experience to stats
+        function addStatExp(stat, amount) {
+            statExp[stat] += amount;
+            localStorage.setItem('statExp', JSON.stringify(statExp));
+            updateStatsDisplay();
+        }
+
+        // Define habit categories and their stat effects
+        const habitCategories = {
+            physical: {
+                stats: ['str', 'dex'],
+                expGain: {
+                    str: 10,
+                    dex: 8
+                }
+            },
+            mental: {
+                stats: ['mag', 'spr'],
+                expGain: {
+                    mag: 10,
+                    spr: 8
+                }
+            },
+            endurance: {
+                stats: ['hp', 'vit'],
+                expGain: {
+                    hp: 10,
+                    vit: 8
+                }
+            },
+            creative: {
+                stats: ['mp', 'mag'],
+                expGain: {
+                    mp: 10,
+                    mag: 8
+                }
+            }
+        };
+
+        // Initialize stat experience and levels
+        let statExp = JSON.parse(localStorage.getItem('statExp')) || {
+            hp: 0, mp: 0, str: 0, dex: 0, vit: 0, mag: 0, spr: 0, lck: 0
+        };
+
+        // Update equipment display
+        function updateEquipmentDisplay() {
+            const weaponSlot = document.getElementById('weaponSlot');
+            const armorSlot = document.getElementById('armorSlot');
+            
+            // Update weapon slot
+            const equippedWeapon = inventory.find(item => item.id === equipped.weapon);
+            if (equippedWeapon) {
+                weaponSlot.className = 'equipment-slot';
+                const statsText = Object.entries(equippedWeapon.stats)
+                    .map(([stat, value]) => `+${value} ${stat.toUpperCase()}`)
+                    .join(', ');
+                weaponSlot.innerHTML = `
+                    <div class="equipment-image">${equippedWeapon.image}</div>
+                    <div class="equipment-name">${equippedWeapon.name}</div>
+                    <div class="equipment-stats">${statsText}</div>
+                `;
+            } else {
+                weaponSlot.className = 'equipment-slot empty';
+                weaponSlot.innerHTML = `
+                    <div class="equipment-image">🗡️</div>
+                    <div class="equipment-name">No weapon</div>
+                `;
+            }
+            
+            // Update armor slot
+            const equippedArmor = inventory.find(item => item.id === equipped.armor);
+            if (equippedArmor) {
+                armorSlot.className = 'equipment-slot';
+                const statsText = Object.entries(equippedArmor.stats)
+                    .map(([stat, value]) => `+${value} ${stat.toUpperCase()}`)
+                    .join(', ');
+                armorSlot.innerHTML = `
+                    <div class="equipment-image">${equippedArmor.image}</div>
+                    <div class="equipment-name">${equippedArmor.name}</div>
+                    <div class="equipment-stats">${statsText}</div>
+                `;
+            } else {
+                armorSlot.className = 'equipment-slot empty';
+                armorSlot.innerHTML = `
+                    <div class="equipment-image">🛡️</div>
+                    <div class="equipment-name">No armor</div>
+                `;
+            }
+        }
+
+        // Initialize everything
+        updateStatsDisplay();
+        updateEquipmentDisplay();
+        renderInventory();
+        updateAvatar();
+
+        // Initial render
+        renderHabits();
+
+        // Allow adding habit with Enter key
+        document.getElementById('newHabit').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addHabit();
+            }
+        });
+
+        // Force a refresh of stats display
+        window.addEventListener('load', () => {
+            updateStatsDisplay();
+        });
+
+        // Monster definitions
+        const monsters = [
+            {
+                id: 1,
+                name: "Training Dummy",
+                sprite: "🎯",
+                hp: 50,
+                attack: 5,
+                defense: 2,
+                badge: "🎯",
+                badgeName: "Beginner's Badge",
+                expReward: 100
+            },
+            {
+                id: 2,
+                name: "Slime",
+                sprite: "🫧",
+                hp: 100,
+                attack: 8,
+                defense: 5,
+                badge: "🫧",
+                badgeName: "Slime Conqueror",
+                expReward: 200
+            },
+            {
+                id: 3,
+                name: "Forest Wolf",
+                sprite: "🐺",
+                hp: 200,
+                attack: 15,
+                defense: 8,
+                badge: "🐺",
+                badgeName: "Wolf Hunter",
+                expReward: 400
+            },
+            {
+                id: 4,
+                name: "Dark Knight",
+                sprite: "⚔️",
+                hp: 500,
+                attack: 25,
+                defense: 15,
+                badge: "⚔️",
+                badgeName: "Knight Slayer",
+                expReward: 800
+            },
+            {
+                id: 5,
+                name: "Ancient Dragon",
+                sprite: "🐉",
+                hp: 1000,
+                attack: 40,
+                defense: 25,
+                badge: "🐉",
+                badgeName: "Dragon Slayer",
+                expReward: 1500
+            }
+        ];
+
+        // Battle state
+        let currentBattle = {
+            active: false,
+            monster: null,
+            monsterCurrentHp: 0,
+            playerCurrentMp: 0,
+            turn: 0
+        };
+
+        // Player badges
+        let badges = JSON.parse(localStorage.getItem('badges')) || [];
+
+        // Initialize battle
+        function initializeBattle() {
+            if (currentBattle.active) return;
+            
+            // Find next undefeated monster
+            const nextMonster = monsters.find(m => !badges.includes(m.id));
+            if (!nextMonster) {
+                updateBattleLog("You've defeated all monsters!");
+                return;
+            }
+
+            const totalStats = calculateTotalStats();
+            currentBattle = {
+                active: true,
+                monster: nextMonster,
+                monsterCurrentHp: nextMonster.hp,
+                turn: 0
+            };
+
+            // Ensure player stats are properly initialized
+            stats.hp = Math.min(stats.hp, totalStats.hp);
+            stats.mp = Math.min(stats.mp, totalStats.mp);
+            localStorage.setItem('stats', JSON.stringify(stats));
+
+            updateBattleUI();
+        }
+
+        // Update battle UI
+        function updateBattleUI() {
+            const monster = currentBattle.monster;
+            if (!monster) return;
+
+            const totalStats = calculateTotalStats();
+
+            // Update monster info
+            document.querySelector('.monster-name').textContent = monster.name;
+            document.querySelector('.monster-sprite').textContent = monster.sprite;
+            
+            // Update monster HP bar
+            const monsterHpPercent = (currentBattle.monsterCurrentHp / monster.hp) * 100;
+            document.getElementById('monsterHpBar').style.width = `${Math.max(0, Math.min(monsterHpPercent, 100))}%`;
+            document.getElementById('monsterHpText').textContent = 
+                `${Math.max(0, Math.floor(currentBattle.monsterCurrentHp))}/${monster.hp}`;
+
+            // Update player HP bar
+            const playerHpPercent = (stats.hp / totalStats.hp) * 100;
+            document.getElementById('playerHpBar').style.width = `${Math.max(0, Math.min(playerHpPercent, 100))}%`;
+            document.getElementById('playerHpText').textContent = 
+                `${Math.max(0, Math.floor(stats.hp))}/${Math.floor(totalStats.hp)}`;
+
+            // Update heal button based on MP
+            const healBtn = document.getElementById('healBtn');
+            healBtn.disabled = stats.mp < 10;
+            healBtn.textContent = `Heal (MP: ${Math.floor(stats.mp)}/10)`;
+        }
+
+        // Perform attack
+        function performAttack() {
+            if (!currentBattle.active) return;
+
+            const totalStats = calculateTotalStats();
+            const baseAttack = totalStats.str - currentBattle.monster.defense;
+            const randomMultiplier = 0.8 + Math.random() * 0.4; // Random between 0.8 and 1.2
+            const damage = Math.max(1, Math.floor(baseAttack * randomMultiplier));
+            currentBattle.monsterCurrentHp = Math.max(0, currentBattle.monsterCurrentHp - damage);
+
+            updateBattleLog(`You dealt ${damage} damage!`);
+
+            // Monster's turn
+            if (currentBattle.monsterCurrentHp > 0) {
+                const baseMonsterDamage = currentBattle.monster.attack - (totalStats.vit / 2);
+                const monsterRandomMultiplier = 0.8 + Math.random() * 0.4;
+                const monsterDamage = Math.max(1, Math.floor(baseMonsterDamage * monsterRandomMultiplier));
+                stats.hp = Math.max(0, stats.hp - monsterDamage);
+                localStorage.setItem('stats', JSON.stringify(stats));
+                updateBattleLog(`${currentBattle.monster.name} dealt ${monsterDamage} damage!`);
+
+                if (stats.hp <= 0) {
+                    updateBattleUI();
+                    updateStatsDisplay();
+                    endBattle(false);
+                    return;
+                }
+            } else {
+                endBattle(true);
+                return;
+            }
+
+            updateBattleUI();
+            updateStatsDisplay();
+        }
+
+        // Perform heal
+        function performHeal() {
+            if (!currentBattle.active || stats.mp < 10) return;
+
+            const totalStats = calculateTotalStats();
+            const baseHeal = 20 + totalStats.mag;
+            const randomMultiplier = 0.8 + Math.random() * 0.4;
+            const healAmount = Math.floor(baseHeal * randomMultiplier);
+            
+            stats.hp = Math.min(totalStats.hp, stats.hp + healAmount);
+            stats.mp = Math.max(0, stats.mp - 10);
+            localStorage.setItem('stats', JSON.stringify(stats));
+
+            updateBattleLog(`You healed for ${healAmount} HP! (-10 MP)`);
+            
+            // Monster's turn
+            const baseMonsterDamage = currentBattle.monster.attack - (totalStats.vit / 2);
+            const monsterRandomMultiplier = 0.8 + Math.random() * 0.4;
+            const monsterDamage = Math.max(1, Math.floor(baseMonsterDamage * monsterRandomMultiplier));
+            stats.hp = Math.max(0, stats.hp - monsterDamage);
+            localStorage.setItem('stats', JSON.stringify(stats));
+            updateBattleLog(`${currentBattle.monster.name} dealt ${monsterDamage} damage!`);
+
+            if (stats.hp <= 0) {
+                updateBattleUI();
+                updateStatsDisplay();
+                endBattle(false);
+                return;
+            }
+
+            updateBattleUI();
+            updateStatsDisplay();
+        }
+
+        // Update battle log
+        function updateBattleLog(message) {
+            const log = document.querySelector('.battle-log');
+            log.innerHTML += `<div>${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // End battle
+        function endBattle(victory) {
+            const totalStats = calculateTotalStats();
+            
+            if (victory) {
+                updateBattleLog(`You defeated ${currentBattle.monster.name}!`);
+                badges.push(currentBattle.monster.id);
+                localStorage.setItem('badges', JSON.stringify(badges));
+                
+                // Add experience
+                Object.entries(statExp).forEach(([stat, exp]) => {
+                    addStatExp(stat, currentBattle.monster.expReward);
+                });
+
+                // Refresh HP and MP to max
+                stats.hp = totalStats.hp;
+                stats.mp = totalStats.mp;
+                localStorage.setItem('stats', JSON.stringify(stats));
+
+                // Show badge notification
+                const notification = document.getElementById('rewardNotification');
+                notification.textContent = `🎉 You earned the ${currentBattle.monster.badgeName}!`;
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            } else {
+                updateBattleLog("You were defeated! Try again when you're stronger.");
+                // Reset HP to 50% on defeat
+                stats.hp = Math.floor(totalStats.hp * 0.5);
+                stats.mp = Math.floor(totalStats.mp * 0.5);
+                localStorage.setItem('stats', JSON.stringify(stats));
+            }
+
+            currentBattle.active = false;
+            updateBadges();
+            updateStatsDisplay();
+            updateBattleUI();
+            setTimeout(() => {
+                initializeBattle();
+            }, 1500);
+        }
+
+        // Update badges display
+        function updateBadges() {
+            const badgesContainer = document.getElementById('badges');
+            badgesContainer.innerHTML = '';
+
+            monsters.forEach(monster => {
+                const badge = document.createElement('div');
+                badge.className = `badge${badges.includes(monster.id) ? '' : ' locked'}`;
+                badge.innerHTML = monster.badge;
+                badge.setAttribute('data-name', monster.badgeName);
+                badgesContainer.appendChild(badge);
+            });
+        }
+
+        // Add battle initialization to the window load event
+        window.addEventListener('load', () => {
+            updateStatsDisplay();
+            updateBadges();
+            initializeBattle();
+        });
+    </script>
+</body>
+</html>
+
