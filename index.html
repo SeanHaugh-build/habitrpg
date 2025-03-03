@@ -31,9 +31,16 @@
 
         .dashboard {
             display: grid;
-            grid-template-columns: 300px 1fr;
+            grid-template-columns: 1fr 300px;
             gap: var(--spacing);
             margin-bottom: var(--spacing);
+        }
+
+        .habits-section {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: var(--spacing);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
         .profile-section {
@@ -522,7 +529,12 @@
                 gap: 10px;
             }
 
+            .habits-section {
+                order: 1;
+            }
+
             .profile-section {
+                order: 2;
                 display: flex;
                 flex-direction: column;
             }
@@ -530,10 +542,6 @@
             /* Move habits section right after avatar */
             .avatar-container {
                 order: 1;
-            }
-
-            .habits-section {
-                order: 2;
             }
 
             .stats-container {
@@ -888,6 +896,32 @@
     <h1>Habit Tracker</h1>
 
     <div class="dashboard">
+        <div class="habits-section">
+            <div class="date-navigation">
+                <button onclick="previousWeek()">← Previous</button>
+                <span id="currentWeek"></span>
+                <button onclick="nextWeek()">Next →</button>
+            </div>
+
+            <div class="add-habit">
+                <div class="add-habit-row">
+                    <input type="text" id="newHabit" placeholder="Add a new habit...">
+                    <select id="habitCategory" class="habit-category">
+                        <option value="">Select Category</option>
+                        <option value="physical">Physical</option>
+                        <option value="mental">Mental</option>
+                        <option value="endurance">Endurance</option>
+                        <option value="creative">Creative</option>
+                    </select>
+                    <button onclick="addHabit()">Add</button>
+                </div>
+            </div>
+
+            <div id="habits" class="habit-container">
+                <!-- Habits will be added here dynamically -->
+            </div>
+        </div>
+
         <div class="profile-section">
             <div class="avatar-container">
                 <img id="avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect width='200' height='200' fill='%23F5F5F7'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='80' fill='%23C7C7CC' text-anchor='middle' dy='.3em'%3E⚔️%3C/text%3E%3C/svg%3E" alt="Avatar" class="avatar-image">
@@ -986,32 +1020,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="habits-section">
-            <div class="date-navigation">
-                <button onclick="previousWeek()">← Previous</button>
-                <span id="currentWeek"></span>
-                <button onclick="nextWeek()">Next →</button>
-            </div>
-
-            <div class="add-habit">
-                <div class="add-habit-row">
-                    <input type="text" id="newHabit" placeholder="Add a new habit...">
-                    <select id="habitCategory" class="habit-category">
-                        <option value="">Select Category</option>
-                        <option value="physical">Physical</option>
-                        <option value="mental">Mental</option>
-                        <option value="endurance">Endurance</option>
-                        <option value="creative">Creative</option>
-                    </select>
-                    <button onclick="addHabit()">Add</button>
-                </div>
-            </div>
-
-            <div id="habits" class="habit-container">
-                <!-- Habits will be added here dynamically -->
             </div>
         </div>
     </div>
@@ -1697,7 +1705,7 @@
         const starterEquipment = [
             {
                 id: 'wooden_stick',
-                name: 'Wooden Stick',
+                name: 'Stale Baguette',
                 image: '🥖',
                 type: 'weapon',
                 category: 'physical',
@@ -1723,6 +1731,21 @@
 
             // Load saved data first
             habits = JSON.parse(localStorage.getItem('habits')) || [];
+            
+            // Add default habits if there are no habits yet
+            if (habits.length === 0) {
+                const defaultHabits = [
+                    { name: "Go to the gym", category: "physical" },
+                    { name: "10000 steps", category: "endurance" },
+                    { name: "Eat healthy", category: "physical" },
+                    { name: "Journal", category: "creative" },
+                    { name: "Meditate", category: "mental" },
+                    { name: "Practice instrument", category: "creative" }
+                ];
+                habits = defaultHabits;
+                localStorage.setItem('habits', JSON.stringify(habits));
+            }
+
             habitStatus = JSON.parse(localStorage.getItem('habitStatus')) || {};
             inventory = JSON.parse(localStorage.getItem('inventory')) || [...starterEquipment];
             equipped = JSON.parse(localStorage.getItem('equipped')) || {};
@@ -1772,6 +1795,15 @@
 
         // Remove the extra stats display refresh on load
         window.addEventListener('load', initializeGame);
+
+        // Add DOMContentLoaded event listener to ensure habits are rendered
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load habits from localStorage
+            habits = JSON.parse(localStorage.getItem('habits')) || [];
+            habitStatus = JSON.parse(localStorage.getItem('habitStatus')) || {};
+            // Render habits immediately
+            renderHabits();
+        });
 
         // Allow adding habit with Enter key
         document.getElementById('newHabit').addEventListener('keypress', (e) => {
