@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Habit Tracker</title>
     <style>
         :root {
@@ -510,25 +510,223 @@
             border-color: #C7C7CC;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             body {
                 padding: 10px;
+                font-size: 14px;
+            }
+
+            .dashboard {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .profile-section {
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* Move habits section right after avatar */
+            .avatar-container {
+                order: 1;
+            }
+
+            .habits-section {
+                order: 2;
+            }
+
+            .stats-container {
+                order: 3;
+            }
+
+            .equipment-section {
+                order: 4;
+            }
+
+            .inventory-section {
+                order: 5;
+            }
+
+            .battle-section {
+                order: 6;
+            }
+
+            /* Reduce spacing between sections */
+            .profile-section > * {
+                margin-top: 10px;
+            }
+
+            .avatar-container {
+                margin-bottom: 10px;
             }
 
             .habit-row {
-                padding: 12px;
+                padding: 10px;
+                font-size: 14px;
             }
 
             .checkbox-container {
-                width: 60px;
+                width: 40px;
             }
 
             .date-header {
-                font-size: 12px;
+                font-size: 10px;
+                padding: 4px;
             }
 
             .date-value {
+                font-size: 9px;
+            }
+
+            .add-habit-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .add-habit button {
+                width: 100%;
+            }
+
+            .habit-category {
+                width: 100%;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .stat-item {
+                padding: 6px;
+                font-size: 12px;
+            }
+
+            .equipment-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .equipment-slot {
+                min-height: 60px;
+                padding: 8px;
+            }
+
+            .equipment-image {
+                font-size: 20px;
+            }
+
+            .equipment-name {
                 font-size: 10px;
+            }
+
+            .inventory-item {
+                padding: 6px;
+                min-height: 50px;
+            }
+
+            .inventory-item-image {
+                width: 24px;
+                height: 24px;
+                font-size: 16px;
+            }
+
+            .inventory-item-name {
+                font-size: 12px;
+            }
+
+            .inventory-item-stats,
+            .inventory-item-category {
+                font-size: 10px;
+            }
+
+            .battle-section {
+                padding: 10px;
+            }
+
+            .battle-container {
+                padding: 10px;
+            }
+
+            .battle-arena {
+                height: 150px;
+            }
+
+            .monster-sprite {
+                font-size: 48px;
+            }
+
+            .battle-controls {
+                gap: 8px;
+            }
+
+            .battle-controls button {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .badges-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+
+            .badge {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+                margin: 16px 0;
+            }
+
+            .delete-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 16px;
+            }
+
+            input[type="checkbox"] {
+                width: 20px;
+                height: 20px;
+            }
+
+            input[type="checkbox"]:checked::after {
+                font-size: 14px;
+            }
+
+            .streak-count {
+                font-size: 10px;
+                padding: 1px 4px;
+            }
+
+            /* Improve touch targets */
+            button, 
+            input[type="checkbox"],
+            .inventory-item,
+            .equipment-slot {
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+
+            /* Add momentum scrolling */
+            .battle-log,
+            .inventory-grid {
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* Prevent text selection */
+            * {
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                user-select: none;
+            }
+
+            /* Allow text selection in input fields */
+            input[type="text"] {
+                -webkit-user-select: text;
+                user-select: text;
             }
         }
 
@@ -834,7 +1032,7 @@
 
         // Character stats and equipment
         let stats = JSON.parse(localStorage.getItem('stats')) || {
-            hp: 100,
+            hp: 100, // Base HP is always 100
             mp: 10,
             str: 10,
             dex: 10,
@@ -1416,7 +1614,7 @@
             };
             
             // Add vitality bonus to HP after base HP is set
-            baseStats.hp += (baseStats.vit * 5); // Reduced vitality multiplier from 10 to 5
+            baseStats.hp += (baseStats.vit * 5); // Vitality bonus
             
             // Add equipment bonuses
             Object.values(equipped).forEach(itemId => {
@@ -1424,7 +1622,11 @@
                 if (item && item.stats) {
                     Object.entries(item.stats).forEach(([stat, value]) => {
                         if (baseStats.hasOwnProperty(stat)) {
-                            baseStats[stat] += Math.floor(value);
+                            if (stat === 'hp') {
+                                baseStats[stat] += Math.floor(value); // Add HP bonus directly
+                            } else {
+                                baseStats[stat] += Math.floor(value);
+                            }
                         }
                     });
                 }
@@ -1537,10 +1739,10 @@
                 lck: 10
             };
 
-            // Ensure stats are numbers and HP is at least 100
+            // Ensure stats are numbers and HP is always 100
             Object.keys(stats).forEach(key => {
                 if (key === 'hp') {
-                    stats[key] = Math.max(100, Number(stats[key]));
+                    stats[key] = 100; // Always set base HP to 100
                 } else {
                     stats[key] = Number(stats[key]) || (key === 'mp' ? 10 : 10);
                 }
