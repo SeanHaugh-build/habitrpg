@@ -1,0 +1,224 @@
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .dashboard {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        box-shadow: none;
+        border: none;
+        padding: 0;
+    }
+
+    .habits-section, .profile-section {
+        box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
+    }
+
+    .habits-section {
+        order: 1;
+        max-height: 60vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 20px;
+    }
+
+    .profile-section {
+        order: 2;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .avatar-container {
+        order: 1;
+        margin-bottom: 10px;
+    }
+
+    .stats-container {
+        order: 3;
+    }
+
+    .equipment-section {
+        order: 4;
+    }
+
+    .inventory-section {
+        order: 5;
+    }
+
+    .battle-section {
+        order: 6;
+    }
+
+    .profile-section > * {
+        margin-top: 10px;
+    }
+
+    .habit-row {
+        padding: 12px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .add-habit button {
+        width: 100%;
+    }
+
+    .habit-category {
+        width: 100%;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .stat-item {
+        padding: 6px;
+        font-size: 12px;
+    }
+
+    .equipment-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .equipment-slot {
+        min-height: 60px;
+        padding: 8px;
+    }
+
+    .equipment-image {
+        font-size: 20px;
+    }
+
+    .equipment-name {
+        font-size: 10px;
+    }
+
+    .inventory-item {
+        padding: 6px;
+        min-height: 50px;
+    }
+
+    .inventory-item-image {
+        width: 24px;
+        height: 24px;
+        font-size: 16px;
+    }
+
+    .inventory-item-name {
+        font-size: 12px;
+    }
+
+    .inventory-item-stats,
+    .inventory-item-category {
+        font-size: 10px;
+    }
+
+    .battle-section {
+        padding: 10px;
+    }
+
+    .battle-container {
+        padding: 10px;
+    }
+
+    .battle-arena {
+        height: 150px;
+    }
+
+    .monster-sprite {
+        font-size: 48px;
+    }
+
+    .battle-controls {
+        gap: 8px;
+    }
+
+    .battle-controls button {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .badges-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+
+    .streak-count {
+        font-size: 10px;
+        padding: 1px 4px;
+    }
+
+    button, 
+    input[type="checkbox"],
+    .inventory-item,
+    .equipment-slot {
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+
+    .battle-log,
+    .inventory-grid {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    * {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    input[type="text"] {
+        -webkit-user-select: text;
+        user-select: text;
+    }
+
+    .badge {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    h1 {
+        font-size: 18px;
+        margin: 20px 0;
+    }
+
+    input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+    }
+
+    input[type="checkbox"]:checked::after {
+        font-size: 14px;
+    }
+
+    .habit-container {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .add-habit {
+        position: sticky;
+        top: 0;
+        background: var(--card-background);
+        z-index: 1;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .date-navigation {
+        position: sticky;
+        top: 0;
+        background: var(--card-background);
+        z-index: 1;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+} 

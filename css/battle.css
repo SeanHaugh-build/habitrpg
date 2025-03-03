@@ -1,0 +1,156 @@
+.battle-section {
+    margin-top: 20px;
+    background-color: var(--background-color);
+    border-radius: var(--border-radius);
+    padding: 15px;
+}
+
+.battle-container {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    padding: 15px;
+}
+
+.battle-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.player-info, .monster-info {
+    text-align: center;
+}
+
+.player-name, .monster-name {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.hp-bar {
+    background-color: #E5E5EA;
+    border-radius: 10px;
+    height: 20px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #000;
+    box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.8);
+}
+
+.hp-bar-fill {
+    background-color: #34C759;
+    height: 100%;
+    width: 100%;
+    transition: width 0.3s ease;
+    background: linear-gradient(
+        to right,
+        #34C759,
+        #4CD964
+    );
+    box-shadow: 2px 0px 0px rgba(255, 255, 255, 0.2);
+}
+
+.hp-text {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.battle-arena {
+    height: 200px;
+    background-color: var(--background-color);
+    border-radius: var(--border-radius);
+    margin: 15px 0;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #000;
+    box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.8);
+    background: repeating-linear-gradient(
+        45deg,
+        #f0f0f0,
+        #f0f0f0 10px,
+        #e8e8e8 10px,
+        #e8e8e8 20px
+    );
+}
+
+.monster-sprite {
+    font-size: 64px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.battle-log {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px;
+    font-size: 14px;
+    max-height: 80px;
+    overflow-y: auto;
+}
+
+.battle-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.battle-controls button {
+    flex: 1;
+}
+
+.badge-collection {
+    margin-top: 15px;
+}
+
+.badges-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.badge {
+    background-color: var(--background-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    position: relative;
+    border: 2px solid #000;
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
+}
+
+.badge.locked {
+    opacity: 0.5;
+    box-shadow: none;
+}
+
+.badge:hover::after {
+    content: attr(data-name);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+} 
