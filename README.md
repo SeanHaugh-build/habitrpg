@@ -19,7 +19,7 @@ A gamified habit tracking web application that turns your daily habits into an R
 
 ## How to Use
 
-1. Visit the [RPG Habit Tracker](https://YOUR_USERNAME.github.io/habit-tracker/)
+1. Visit the [RPG Habit Tracker](https://seanhaugh-build.github.io/habit-tracker/)
 2. Add your daily habits by category
 3. Check off completed habits to gain experience and level up your character
 4. Battle monsters to earn badges and test your progress
