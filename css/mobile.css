@@ -64,12 +64,48 @@
         gap: 8px;
     }
 
-    .add-habit button {
+    .add-habit {
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 2px solid #000;
+        box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
+    }
+
+    .add-habit-row {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .add-habit input[type="text"] {
         width: 100%;
+        padding: 8px 12px;
+        font-size: 14px;
+        height: 40px;
     }
 
     .habit-category {
         width: 100%;
+        padding: 8px 12px;
+        font-size: 14px;
+        height: 40px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%238E8E93' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        border: 2px solid #000;
+        box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
+    }
+
+    .add-habit button {
+        width: 100%;
+        padding: 8px;
+        font-size: 14px;
+        height: 40px;
+        border: 2px solid #000;
+        box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
     }
 
     .stats-grid {
@@ -202,15 +238,6 @@
     .habit-container {
         flex: 1;
         overflow-y: auto;
-    }
-
-    .add-habit {
-        position: sticky;
-        top: 0;
-        background: var(--card-background);
-        z-index: 1;
-        margin-bottom: 10px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .date-navigation {

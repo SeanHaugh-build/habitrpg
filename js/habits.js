@@ -148,8 +148,43 @@ function addHabit() {
     }
 }
 
-// Delete habit
+// Delete habit and remove its stat contributions
 function deleteHabit(index) {
+    const habit = habits[index];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Remove stat gains from completed habits in the last 3 days
+    for (let i = 0; i <= 2; i++) {
+        const checkDate = new Date(today);
+        checkDate.setDate(today.getDate() - i);
+        const dateStr = formatDate(checkDate);
+        
+        if (habitStatus[dateStr]?.[habit.name]) {
+            // Find habit category and remove stat gains
+            if (habit.category) {
+                const category = habitCategories[habit.category];
+                if (category) {
+                    Object.entries(category.expGain).forEach(([stat, gain]) => {
+                        // Remove the stat gains
+                        statExp[stat] = Math.max(0, statExp[stat] - gain);
+                    });
+                }
+            }
+            // Remove the habit status
+            delete habitStatus[dateStr][habit.name];
+            if (Object.keys(habitStatus[dateStr]).length === 0) {
+                delete habitStatus[dateStr];
+            }
+        }
+    }
+
+    // Update localStorage and stats display
+    localStorage.setItem('statExp', JSON.stringify(statExp));
+    localStorage.setItem('habitStatus', JSON.stringify(habitStatus));
+    updateStatsDisplay();
+
+    // Remove the habit from the list
     habits.splice(index, 1);
     localStorage.setItem('habits', JSON.stringify(habits));
     renderHabits();
@@ -174,26 +209,76 @@ function calculateStreak(habit) {
     return streak;
 }
 
+// Show stat change notification
+function showStatNotification(habit, changes, isDecrease = false) {
+    const notification = document.getElementById('statNotification');
+    const title = notification.querySelector('.notification-title');
+    const statChanges = notification.querySelector('.stat-changes');
+    
+    // Set title based on whether checking or unchecking
+    title.textContent = isDecrease ? 
+        `${habit.name} unchecked!` : 
+        `${habit.name} completed!`;
+    
+    // Clear previous stat changes
+    statChanges.innerHTML = '';
+    
+    // Add each stat change
+    Object.entries(changes).forEach(([stat, value]) => {
+        const statItem = document.createElement('div');
+        statItem.className = 'stat-change-item';
+        statItem.textContent = `${stat.toUpperCase()} ${isDecrease ? '-' : '+'}${value}`;
+        statChanges.appendChild(statItem);
+    });
+    
+    // Add decrease class if unchecking
+    notification.classList.toggle('decrease', isDecrease);
+    
+    // Show notification
+    notification.classList.add('show');
+    
+    // Hide after 3 seconds
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 3000);
+}
+
 // Update habit status
 function updateHabitStatus(habit, date, isChecked) {
     if (!habitStatus[date]) {
         habitStatus[date] = {};
     }
     
-    // Only update stats if habit is being checked
-    if (isChecked && !habitStatus[date][habit.name]) {
-        // Find habit category and apply stat gains
-        if (habit.category) {
-            const category = habitCategories[habit.category];
-            if (category) {
-                Object.entries(category.expGain).forEach(([stat, gain]) => {
-                    addStatExp(stat, gain);
-                });
-            }
+    const wasChecked = habitStatus[date][habit.name];
+    habitStatus[date][habit.name] = isChecked;
+    
+    // Only update stats if the habit is being checked and wasn't previously checked
+    if (isChecked && !wasChecked && habit.category) {
+        const category = habitCategories[habit.category];
+        if (category) {
+            // Show notification before updating stats
+            showStatNotification(habit, category.expGain);
+            
+            Object.entries(category.expGain).forEach(([stat, gain]) => {
+                addStatExp(stat, gain);
+            });
+        }
+    }
+    // Remove stats if the habit is being unchecked
+    else if (!isChecked && wasChecked && habit.category) {
+        const category = habitCategories[habit.category];
+        if (category) {
+            // Show notification before removing stats
+            showStatNotification(habit, category.expGain, true);
+            
+            Object.entries(category.expGain).forEach(([stat, gain]) => {
+                statExp[stat] = Math.max(0, statExp[stat] - gain);
+                localStorage.setItem('statExp', JSON.stringify(statExp));
+                updateStatsDisplay();
+            });
         }
     }
     
-    habitStatus[date][habit.name] = isChecked;
     localStorage.setItem('habitStatus', JSON.stringify(habitStatus));
 
     // Check for rewards after updating status

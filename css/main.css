@@ -323,4 +323,49 @@ input[type="checkbox"]:checked::after {
     height: 150px;
     border-radius: var(--border-radius);
     object-fit: contain;
+}
+
+.stat-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 15px 20px;
+    border-radius: var(--border-radius);
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+    border: 2px solid #000;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.8);
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+    z-index: 1000;
+}
+
+.stat-notification.show {
+    transform: translateX(0);
+}
+
+.stat-changes {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-change-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+}
+
+.stat-change-item::before {
+    content: "↑";
+    color: #34C759;
+}
+
+.stat-notification.decrease .stat-change-item::before {
+    content: "↓";
+    color: #FF3B30;
 } 
